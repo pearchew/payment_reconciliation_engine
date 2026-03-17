@@ -51,7 +51,7 @@ Ensure your virtual environment is active and you are inside the `src/` director
 
 1. **Generate the raw 1-to-1 transaction data:**
    ```bash
-   python generate_data.py ```
+   python generate_data.py
 2. ** Run the V1 Engine **
    ```bash
    python reconcile.py
@@ -61,13 +61,9 @@ Ensure your virtual environment is active and you are inside the `src/` director
 Tests pandas aggregation, groupby logic, and simulating payment gateway daily payouts.
 
 1. **Generate the batched daily transaction data:**
-  ```bash
-  python generate_batched_data.py
-
+  ```bash python generate_batched_data.py
 2. ** Run the V2 batched engine **
-  ```bash
-  python reconcile_batched.py
-
+  ```bash python reconcile_batched.py
 3. ** Verify: The terminal will output a clear table proving the aggregated internal math perfectly matches the single daily bank deposits. **
 
 ---
@@ -76,19 +72,11 @@ Tests pandas aggregation, groupby logic, and simulating payment gateway daily pa
 *Tests SQLite database creation, SQLAlchemy ORM insertion, and preventing duplicate processing.*
 
 1. **Initialize the empty database schema:**
-   ```bash
-   python database.py
-
+   ```bash python database.py
 2. ** Seed the database with "Pending" batched transactions: **
-  ```bash
-  python seed_db.py
-
+  ```bash python seed_db.py
 3. ** Run the V3 database engine **
-  ```bash
-  python reconcile_db.py
-
-3. ** The "Amnesia" Test: Run the exact same engine command a second time: **
-  ```bash
-  python reconcile_db.py
-
+  ```bash python reconcile_db.py
+4. ** The "Amnesia" Test: Run the exact same engine command a second time: **
+  ```bash python reconcile_db.py
 5. ** Verify: The engine will instantly exit, successfully recognizing that all transactions in the database are already marked as "Reconciled". **
