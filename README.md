@@ -1,40 +1,93 @@
-# 🏦 Automated Payment Reconciliation Engine
+# Enterprise FinTech Payment Reconciliation Engine
 
-![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
-![Pandas](https://img.shields.io/badge/Pandas-Advanced-150458.svg)
-![FinTech](https://img.shields.io/badge/Domain-FinTech-00C7B7.svg)
+An automated, state-aware payment reconciliation engine built in Python. This project simulates the real-world financial operations of a FinTech company, matching internal ledger transactions against external bank statements and payment gateway (e.g., Stripe) payouts.
 
-## 📌 Project Overview
-Millions of dollars are lost annually across the FinTech sector due to payment gateway glitches, double-charges, and hidden fees. This project is a robust **Automated Payment Reconciliation Engine** built in Python. 
+## 🚀 Key Features
 
-It simulates the "financial plumbing" of a modern FinTech company by automatically matching thousands of rows of transactional data between an internal ledger and an external bank statement. By intelligently categorizing discrepancies, catching hidden fee leaks, and outputting clean reports, this engine demonstrates how to automate critical finance operations.
-
-## 🚀 Features
-* **Mock Data Generation**: Simulates realistic financial datasets with built-in anomalies (missing rows, T+1/T+2 settlement delays, and fee deductions).
-* **Data Normalization**: Cleans and standardizes messy text, currency strings, and timestamps.
-* **Multi-Pass Matching Logic**:
-  * *Pass 1*: Exact matching on Transaction IDs and Amounts.
-  * *Pass 2*: Fuzzy matching handling rolling 3-day settlement windows.
-* **Exception Handling**: Automatically detects known payment gateway fee structures (e.g., Stripe's 2.9% + $0.30) to distinguish between genuine errors and standard operational costs.
-* **Automated Excel Reporting**: Generates a multi-tab, color-coded Excel report for Finance/Ops teams separating transactions into `Reconciled`, `Missing in Bank`, `Missing Internally`, and `Fee Discrepancies`.
+* **1-to-1 & Many-to-One Matching:** Capable of matching individual transactions as well as aggregated daily gateway batches.
+* **Algorithmic Fee Handling:** Automatically identifies and categorizes legitimate payment gateway fees (e.g., Stripe's 2.9% + $0.30) using NumPy floating-point tolerance (`np.isclose`), separating them from true financial anomalies.
+* **Database Persistence & State Management:** Utilizes **SQLite** and **SQLAlchemy (ORM)** to permanently store transactions. The engine reads only "Pending" rows and safely updates them to "Reconciled" upon successful matching, preventing duplicate processing.
+* **Automated Reporting:** Generates multi-tab Excel reports using `pandas.ExcelWriter` for Finance and Accounting teams to review discrepancies.
+* **Data Generation:** Includes robust mock-data generators using `Faker` to simulate both standard API drops and complex end-of-day batching logic.
 
 ## 🛠️ Tech Stack
-* **Language:** Python 3.x
-* **Data Manipulation:** `pandas`, `numpy`
-* **File Export:** `openpyxl` / `xlsxwriter`
-* **Data Generation:** `Faker` (for realistic customer names/IDs)
+
+* **Language:** Python 3
+* **Data Engineering:** Pandas, NumPy
+* **Database & ORM:** SQLite, SQLAlchemy
+* **File I/O:** OpenPyXL (Excel), CSV
+* **Mocking:** Faker
 
 ## 📂 Project Structure
+
 ```text
-├── data/
-│   ├── Internal_Ledger.csv       # Generated internal app data
-│   ├── Bank_Statement.csv        # Generated external bank data
-├── output/                       # Generated Excel reports
+payment_reconciliation_engine/
+│
+├── data/                       # Contains all CSVs and the SQLite database
+├── notebooks/                  # Jupyter notebooks for data exploration
+│   └── test_db.ipynb
+├── output/                     # Automated Excel reports drop here
 ├── src/
-│   ├── generate_data.py          # Script to create mock datasets
-│   ├── clean_data.py             # Data normalization functions
-│   ├── reconcile.py              # Core pandas matching logic
-│   └── export.py                 # Excel formatting and output logic
-├── main.py                       # Entry point to run the pipeline
-├── requirements.txt              # Python dependencies
+│   ├── clean_data.py           # Normalizes and cleans raw financial data
+│   ├── database.py             # SQLAlchemy schema and engine setup
+│   ├── export.py               # Handles multi-tab Excel generation
+│   ├── generate_data.py        # Generates V1 (1-to-1) mock transactions
+│   ├── generate_batched_data.py# Generates V2 (Many-to-One) batched payouts
+│   ├── reconcile.py            # V1 Engine: Matches 1-to-1 CSVs
+│   ├── reconcile_batched.py    # V2 Engine: Matches aggregated batches
+│   ├── reconcile_db.py         # V3 Engine: State-aware DB reconciliation
+│   └── seed_db.py              # Ingests CSVs into the SQLite database
 └── README.md
+
+## 🧪 Testing the Engines (Step-by-Step Guide)
+
+This project was built in progressive phases. You can test each engine independently to see how the architecture handles increasing levels of financial complexity.
+
+Ensure your virtual environment is active and you are inside the `src/` directory before running these tests:
+
+### Test 1: V1 Engine (1-to-1 Matching & Excel Export)
+*Tests basic row-by-row reconciliation, floating-point fee logic, and automated report generation.*
+
+1. **Generate the raw 1-to-1 transaction data:**
+   ```bash
+   python generate_data.py
+2. ** Run the V1 Engine **
+   ```bash
+   python reconcile.py
+3. Verify: Check the output/ folder in the project root. You will find a multi-tab Excel report categorizing exact matches, valid fees, and missing transactions.
+
+### Test 2: V2 Engine (Many-to-One Batch Matching)
+Tests pandas aggregation, groupby logic, and simulating payment gateway daily payouts.
+
+1. **Generate the batched daily transaction data:**
+  ```bash
+  python generate_batched_data.py
+
+2. ** Run the V2 batched engine **
+  ```bash
+  python reconcile_batched.py
+
+3. ** Verify: The terminal will output a clear table proving the aggregated internal math perfectly matches the single daily bank deposits. **
+
+---
+
+### Test 3: V3 Engine (Database Persistence & State Management)
+*Tests SQLite database creation, SQLAlchemy ORM insertion, and preventing duplicate processing.*
+
+1. **Initialize the empty database schema:**
+   ```bash
+   python database.py
+
+2. ** Seed the database with "Pending" batched transactions: **
+  ```bash
+  python seed_db.py
+
+3. ** Run the V3 database engine **
+  ```bash
+  python reconcile_db.py
+
+3. ** The "Amnesia" Test: Run the exact same engine command a second time: **
+  ```bash
+  python reconcile_db.py
+
+5. ** Verify: The engine will instantly exit, successfully recognizing that all transactions in the database are already marked as "Reconciled". **
