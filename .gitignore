@@ -1,5 +1,9 @@
 # Ignore the massive dataset
+.data/
 *.csv
+
+.output/
+*.xlsx
 
 # Ignore the virtual environment
 .venv/
