@@ -1,0 +1,11 @@
+# Ignore the massive dataset
+*.csv
+
+# Ignore the virtual environment
+.venv/
+venv/
+
+# Ignore Jupyter and Python system files
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
