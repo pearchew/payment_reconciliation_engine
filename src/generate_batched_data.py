@@ -43,8 +43,6 @@ def generate_batched_data(num_records=5000):
         "Total_Settled_Amount": daily_batches['Total_Settled_Amount']
     })
 
-    internal_df = internal_df.drop(columns=['Date'])
-
     os.makedirs('../data', exist_ok=True)
     internal_df.to_csv('../data/Batched_Internal_Ledger.csv', index=False)
     bank_df.to_csv('../data/Batched_Bank_Statement.csv', index=False)
