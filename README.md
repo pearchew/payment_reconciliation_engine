@@ -51,7 +51,7 @@ Ensure your virtual environment is active and you are inside the `src/` director
 
 1. **Generate the raw 1-to-1 transaction data:**
    ```bash
-   python generate_data.py
+   python generate_data.py ```
 2. ** Run the V1 Engine **
    ```bash
    python reconcile.py
